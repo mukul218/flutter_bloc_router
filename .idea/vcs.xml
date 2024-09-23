@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/bloc_tmp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/bloc_tmp/Flutter-Clean-Architecture-Example" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/block_project" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/sdk/flutter" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/spotify" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/swaraj_app" vcs="Git" />
+  </component>
+</project>
