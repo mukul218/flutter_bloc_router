@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:new_swaraj_app/presentation/routes/set_routes.dart';
-import 'package:new_swaraj_app/presentation/widgets/theam_data.dart';
+import 'package:new_swaraj_app/core/theme/theam_data.dart';
 void  main(){
   runApp(const MyApp());
 }
