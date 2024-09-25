@@ -5,6 +5,7 @@ part of 'auth_bloc.dart';
 sealed class AuthEvent extends MainEvent{}
 
 // perform all the initial work like (Check App version, Internet Connectivity, Login Status)
-class AuthSplashInitialEvent extends AuthEvent{}
-class AuthCheckInternewEvent extends AuthEvent{}
+class CheckClientLoginEvent extends AuthEvent{}
+
+
 

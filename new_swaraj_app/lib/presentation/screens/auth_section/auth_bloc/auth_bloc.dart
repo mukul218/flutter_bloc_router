@@ -1,87 +1,67 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 import 'package:bloc/bloc.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:meta/meta.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import '../../../../data/models/auth_models/check_app_version_model.dart';
+import 'package:new_swaraj_app/logic/blocs/common_state.dart';
+import 'package:new_swaraj_app/presentation/screens/auth_section/auth_repo/auth_fun/auth_fun.dart';
+import '../../../../data/sources/handel_shared_prf.dart';
 import '../../../../logic/blocs/main_bloc.dart';
 import '../auth_repo/auth_repo.dart';
 part 'auth_event.dart';
 part 'auth_state.dart';
 
-class AuthBloc extends Bloc<AuthEvent, AuthState> {
+class AuthBloc extends MainBloc<MainEvent, CommonState> {
   AuthBloc() : super(AuthInitial()) {
-    on<AuthSplashInitialEvent>(authSplashInitialEvent);
-    on<AuthCheckInternewEvent>(authCheckInternewEvent);
+    on<CheckInternetEvent>(checkInternetEvent);
+    on<CheckAppUpdataEvent>(checkAppUpdataEvent);
+    on<CheckShowIntorSlideEvent>(checkShowIntorSlideEvent);
+
+    on<CheckClientLoginEvent>(authCheckLoginStatusEvent);
   }
+
   AuthRepo authRepo = AuthRepo();
 
-  Future<FutureOr<void>> authSplashInitialEvent(
-      AuthSplashInitialEvent event, Emitter<AuthState> emit) async {
-    emit(loadingState());
-    // Check Internet Connection
-    var internetStatus = await checkinterNect();
-    if (internetStatus) {
-      // Check App Version
-      Map<String, dynamic> data = {
-        'key': 'mySwarajSecret',
-        'platform': (Platform.isIOS) ? 'ios' : 'android',
-      };
-      var appVersionResult = await authRepo.apiGetLatestVersionApp(data);
-      var latestBuild = appVersionResult.data[0].buildNo;
+  Future<FutureOr<void>> checkInternetEvent(
+      CheckInternetEvent event, Emitter<CommonState> emit) async {
 
-      if (appVersionResult.status) {
-        PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
-            // Check Version and show alert for update.
-            var buildNumber = packageInfo.buildNumber;
-            print('Latest Version is : $latestBuild');
-            print('Current Version is : $buildNumber');
-            if (int.parse(latestBuild) > int.parse(buildNumber)) {
-              // emit('Emit state for update');
-              print('Update Version');
-            } else {
-              // Emit('Emit State for Next state');
-              print('Latest Version - Go to next step');
-            }
-        });
-      } else {
-        // emit(errorState);
-        print('Error Wile Fetching Data ${appVersionResult}');
-      }
-      // emit(AuthInitialState());
-    } else {
-      print("Don't have Internet");
-      emit(AuthNoInternetState());
-    }
-  }
-
-  Future<FutureOr<void>> authCheckInternewEvent(
-      AuthCheckInternewEvent event, Emitter<AuthState> emit) async {
-    var internetStatus = await checkinterNect();
+    emit(MainLoading());
+    var internetStatus = await AuthFun.checkinterNect();
     if (internetStatus) {
       print('Have Internet');
-      emit(AuthInitialState());
+      emit(HaveInternetState());
     } else {
       print("Don't have Internet");
-      emit(AuthNoInternetState());
+      emit(NoInternetState());
     }
   }
 
-  Future<bool> checkinterNect() async {
-    final List<ConnectivityResult> connectivityResult =
-        await (Connectivity().checkConnectivity());
-    if (connectivityResult.contains(ConnectivityResult.none)) {
-      return false;
+  Future<FutureOr<void>> checkAppUpdataEvent(
+      CheckAppUpdataEvent event, Emitter<CommonState> emit) async {
+    var checkAppUpdate = await AuthFun.checkAppUpdate();
+    if (checkAppUpdate['status']) {
+      if (checkAppUpdate['app_update']) {
+        emit(UpdateAvaliableState());
+      } else {
+        emit(LatestVersionState());
+      }
     } else {
-      return true;
+      emit(MainError(checkAppUpdate['message']));
     }
   }
-}
 
+  Future<FutureOr<void>> checkShowIntorSlideEvent(
+      CheckShowIntorSlideEvent event, Emitter<CommonState> emit) async {
+    // check if user open app first time after install or not
+    var introStatus = await HandleSharedPrf.checkSharedPrf('intro_slide');
+    if (!introStatus) {
+      emit(ShowIntroSlideState());
+    } else {
+      emit(NotShowIntroSlideState());
+    }
+  }
 
-class  AuthBlocNew extends MainBloc{
-
+  FutureOr<void> authCheckLoginStatusEvent(
+      CheckClientLoginEvent event, Emitter<CommonState> emit) {
+    // check if user is login or not using shared_preference
+  }
 }
